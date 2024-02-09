@@ -8,12 +8,12 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const bicycleData =  { name: "Red Bike", color: "Red", "image": "redBike.png" };
+const bicycleData =  { name: "Red Bike", color: "Red", "image": "RedBike.png" };
 
 app.use(express.static(path.join(__dirname, '../build')));
 app.use(bodyParser.urlencoded({ extended: false }))
 
-const port = 4000;
+const port = process.env.PORT || 8080;
 
 app.get(/^(?!\/api).+/, (req, res) => {
     res.sendFile(path.join(__dirname, '../build/index.html'));
