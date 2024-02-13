@@ -45,8 +45,33 @@ export function UpdateBicycle(props) {
     const imageText = useRef();
     
     const submit = (e) => {
-        //e.preventDefault();
-        //props.setInfo( {name: nameText.current.value, color: colorText.current.value, image: imageText.current.value});
+        e.preventDefault();
+        
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+        const urlencoded = new URLSearchParams();
+        urlencoded.append("name", nameText.current.value);
+        urlencoded.append("color", colorText.current.value);
+        urlencoded.append("image", imageText.current.value);
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: urlencoded,
+            redirect: "follow"
+        };
+
+        fetch("/api/updateBicycle", requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+            props.setInfo(result)
+            nameText.current.value = "";
+            colorText.current.value = "";
+            imageText.current.value = "";
+        })
+        .catch((error) => console.error(error));
+        
     }
     
     return (

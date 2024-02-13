@@ -20,7 +20,7 @@ app.get(/^(?!\/api).+/, (req, res) => {
 })
 
 app.get('/api/bicycle', (req, res) => {
-    return res.json(bicycleData);
+        return res.json(bicycleData);
 })
 
 app.post('/api/updateBicycle', async (req, res) => {
@@ -35,7 +35,9 @@ app.post('/api/updateBicycle', async (req, res) => {
         bicycleData.name = name;
         bicycleData.color = color;
         bicycleData.image = image;
-        return res.redirect("/");
+        return res.json(bicycleData);
+        
+        //return res.redirect("/");
     }
 })
 
