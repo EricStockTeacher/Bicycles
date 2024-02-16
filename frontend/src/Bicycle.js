@@ -47,19 +47,20 @@ export function UpdateBicycle(props) {
     const submit = (e) => {
         e.preventDefault();
         
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
 
-        const urlencoded = new URLSearchParams();
-        urlencoded.append("name", nameText.current.value);
-        urlencoded.append("color", colorText.current.value);
-        urlencoded.append("image", imageText.current.value);
+        var raw = JSON.stringify({
+            "name": nameText.current.value,
+            "color": colorText.current.value,
+            "image": imageText.current.value
+        });
 
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: urlencoded,
-            redirect: "follow"
+        var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
         };
 
         fetch("/api/updateBicycle", requestOptions)
@@ -71,7 +72,6 @@ export function UpdateBicycle(props) {
             imageText.current.value = "";
         })
         .catch((error) => console.error(error));
-        
     }
     
     return (

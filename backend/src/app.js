@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, '../build')));
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 
 const port = process.env.PORT || 8080;
 
