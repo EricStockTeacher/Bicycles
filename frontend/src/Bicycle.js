@@ -63,7 +63,7 @@ export function UpdateBicycle(props) {
         redirect: 'follow'
         };
 
-        fetch("/api/updateBicycle", requestOptions)
+        fetch("/api/bicycle", requestOptions)
         .then((response) => response.json())
         .then((result) => {
             props.setInfo(result)

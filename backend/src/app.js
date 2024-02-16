@@ -29,7 +29,7 @@ app.get('/api/bicycle', async (req, res) => {
     return res.json(bike);
 })
 
-app.post('/api/updateBicycle', async (req, res) => {
+app.post('/api/bicycle', async (req, res) => {
     const name = req.body.name;
     const color = req.body.color;
     const image = req.body.image;
