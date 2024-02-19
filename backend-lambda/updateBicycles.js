@@ -1,9 +1,8 @@
- import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ServerApiVersion } from "mongodb";
 
 export const handler = async (event) => {
-  
   const uri = process.env.MONGO_URI;
-
+  
   // Create a MongoClient with a MongoClientOptions object to set the Stable API version
   const client = new MongoClient(uri,  {
         serverApi: {
@@ -19,11 +18,18 @@ export const handler = async (event) => {
   
     const database = client.db("bicycle-store");
     const bikes = database.collection("bike");
-
-    const bike = await bikes.findOne({});
-    console.log(bike);
-    return bike;
     
+    const updateDoc = {
+            $set: {
+                name: event.name,
+                color: event.color,
+                image: event.image
+            },
+        };
+    const result = await bikes.updateOne({}, updateDoc);
+    console.log(result);
+
+    return event;
   }
   finally {
     // Ensures that the client will close when you finish/error
