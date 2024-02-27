@@ -24,9 +24,15 @@ app.get('/api/bicycle', async (req, res) => {
     const database = client.db("bicycle-store");
     const bikes = database.collection("bike");
 
-    const bike = await bikes.findOne({});
-    console.log(bike);
-    return res.json(bike);
+    
+    const findResult = await bikes.find({});
+    let bikeData = [];
+    for await(const doc of findResult) {
+        console.log(doc);
+        bikeData.push(doc);
+    }
+    
+    return res.json(bikeData);
 })
 
 app.post('/api/bicycle', async (req, res) => {
@@ -41,18 +47,26 @@ app.post('/api/bicycle', async (req, res) => {
         //https://www.mongodb.com/docs/drivers/node/current/usage-examples/updateOne/
         const database = client.db("bicycle-store");
         const bikes = database.collection("bike");
-        const updateDoc = {
-            $set: {
-                name: req.body.name,
-                color: req.body.color,
-                image: req.body.image
-            },
-        };
-        const result = await bikes.updateOne({}, updateDoc);
+        
+        const result = await bikes.insertOne({ name: name, color: color, image: image} );
+        
         console.log(result);
-
+        
         return res.json({ name: name, color: color, image: image});
     }
+})
+
+app.delete('/api/bicycle', async (req, res) => {
+    const name = req.body.name;
+
+    const database = client.db("bicycle-store");
+    const bikes = database.collection("bike");
+
+    const deleteResult = await bikes.deleteOne({ name: name});
+
+    return res.json({ deletedBikes: deleteResult.deletedCount})
+
+
 })
 
 app.listen(port, () => {

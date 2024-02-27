@@ -28,13 +28,20 @@ function Bicycle(props) {
         });
         
       },[])
-
+    console.log(props.info);
     return (
         <>
             <NavBar/>
-            <h2>{props.info.name}</h2>
-            <h3>{props.info.color}</h3>
-            <img src = {"images/"+props.info.image}></img>
+            {
+                props.info.map( bike => {
+                    return (
+                    <>
+                    <h2>{bike.name}</h2>
+                    <h3>{bike.color}</h3>
+                    <img src = {"images/"+bike.image}></img>
+                    </>)
+                })
+            }  
         </>
     )
 }
@@ -66,7 +73,6 @@ export function UpdateBicycle(props) {
         fetch("/api/bicycle", requestOptions)
         .then((response) => response.json())
         .then((result) => {
-            props.setInfo(result)
             nameText.current.value = "";
             colorText.current.value = "";
             imageText.current.value = "";
