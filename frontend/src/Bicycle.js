@@ -1,9 +1,12 @@
 import NavBar from "./Navigation.js";
 import { useRef } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function Bicycle(props) {
-    
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+
     useEffect( () => {
         var myHeaders = new Headers();
         var requestOptions = {
@@ -21,14 +24,34 @@ function Bicycle(props) {
                 }
                 return response.json();
         })
-        .then( bike => props.setInfo(bike) )
+        .then( bike => {
+            props.setInfo(bike);
+            setLoading(false); 
+        })
         .catch( e => {
             console.log("Error!!!");
             console.log(e.message);
+            setError(e.message);
         });
         
       },[])
     console.log(props.info);
+    
+
+    if(error) return (
+        <>
+        <NavBar/>
+        <p>Error: {error}</p>
+        </>
+    )
+    if(loading) return (
+        <>
+        <NavBar/>
+        <p>Loading...</p>
+        </>
+    )
+    
+    
     return (
         <>
             <NavBar/>

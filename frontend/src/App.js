@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
 
-  const [bikeInfo, setBikeInfo] = useState([{ name: "Red Bike", color: "Red", image: "RedBike.png"}]);
+  const [bikeInfo, setBikeInfo] = useState();
 
   return (
     <BrowserRouter>
