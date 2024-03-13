@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
 import client from './mongo.js';
+import jwt from 'jsonwebtoken';
 
 const app = express()
 
@@ -14,25 +15,61 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 const port = process.env.PORT || 8080;
+const JWTSecret = "test123";
+
+app.get('/api/login', (req, res) => {
+    jwt.sign( {"name":"Eric", "email":"ericstockteacher@gmail.com", "accountId":12}, JWTSecret, {expiresIn: '2d'}, (err, token) => {
+        if(err) {
+            res.status(500).json(err);
+        }
+        res.status(200).json({token});
+    });
+});
 
 app.get(/^(?!\/api).+/, (req, res) => {
     res.sendFile(path.join(__dirname, '../build/index.html'));
 })
 
 app.get('/api/bicycle', async (req, res) => {
-    //https://www.mongodb.com/docs/drivers/node/current/usage-examples/findOne/
-    const database = client.db("bicycle-store");
-    const bikes = database.collection("bike");
 
-    
-    const findResult = await bikes.find({});
-    let bikeData = [];
-    for await(const doc of findResult) {
-        console.log(doc);
-        bikeData.push(doc);
+    const { authorization } = req.headers;
+    console.log(authorization);
+
+    if( !authorization ) {
+        res.status(400).json({message: "Authorization needed"})
     }
-    
-    return res.json(bikeData);
+
+
+    try {
+
+        const token = authorization.split(' ')[1];
+        console.log(token);
+        //ok so have a token and we want to verify it
+        jwt.verify( token, JWTSecret, async(err, decoded) => {
+            if(err) {
+                return res.status(400).json({message: 'Unable to verify token'});
+            }
+
+            console.log(decoded);
+            //https://www.mongodb.com/docs/drivers/node/current/usage-examples/findOne/
+            const database = client.db("bicycle-store");
+            const bikes = database.collection("bike");
+
+            
+            const findResult = await bikes.find({});
+            let bikeData = [];
+            for await(const doc of findResult) {
+                console.log(doc);
+                bikeData.push(doc);
+            }
+            
+            return res.json(bikeData);
+
+        })
+    }
+    catch( error ) {
+        return res.status(500).json({message: 'error validting user'})
+    }
 })
 
 app.post('/api/bicycle', async (req, res) => {

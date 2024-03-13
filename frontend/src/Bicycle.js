@@ -1,11 +1,43 @@
 import NavBar from "./Navigation.js";
 import { useRef } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {Navigate} from 'react-router-dom';
 
 function Bicycle(props) {
-    
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [refreshData, setRefreshData] = useState(false);
+
+    const handleDelete = evt => {
+        console.log(evt.target.id);
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        const raw = JSON.stringify({
+            "name": evt.target.id
+        });
+
+        const requestOptions = {
+        method: "DELETE",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+        };
+
+        fetch("/api/bicycle", requestOptions)
+        .then((response) => response.text())
+        .then((result) => {
+            console.log(result)
+            //props.setInfo(props.info.filter( (bike) => bike.name != evt.target.id));
+            setRefreshData(!refreshData);
+        })
+        .catch((error) => console.error(error));
+    }
+
     useEffect( () => {
         var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer "+localStorage.getItem('token'));
+
         var requestOptions = {
             method: 'GET',
             headers: myHeaders,
@@ -21,14 +53,41 @@ function Bicycle(props) {
                 }
                 return response.json();
         })
-        .then( bike => props.setInfo(bike) )
+        .then( bike => {
+            props.setInfo(bike);
+            setLoading(false); 
+        })
         .catch( e => {
             console.log("Error!!!");
             console.log(e.message);
+            setError(e.message);
         });
         
-      },[])
+      },[refreshData])
     console.log(props.info);
+    
+
+    if(error) return (
+        <>
+        <NavBar/>
+        <p>Error: {error}</p>
+        <Navigate to="/login" replace={true} />
+        </>
+    )
+    if(loading) return (
+        <>
+        <NavBar/>
+        <p>Loading...</p>
+        </>
+    )
+
+    /*const token = localStorage.getItem("token");
+
+    if( !token) {
+        return (<Navigate to="/login" replace={true} />)
+    }*/
+    
+    
     return (
         <>
             <NavBar/>
@@ -39,6 +98,7 @@ function Bicycle(props) {
                     <h2>{bike.name}</h2>
                     <h3>{bike.color}</h3>
                     <img src = {"images/"+bike.image}></img>
+                    <button onClick={handleDelete} id={bike.name} >Delete</button>
                     </>)
                 })
             }  
