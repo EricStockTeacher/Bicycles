@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Login } from "./Login";
 
 import './App.css';
 import Bicycle, {UpdateBicycle} from './Bicycle';
@@ -11,6 +12,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element= {<Login />} />
         <Route path="/" element={<Bicycle info={bikeInfo} setInfo={setBikeInfo}/>}/>
         <Route path="/update" element={<UpdateBicycle setInfo={setBikeInfo}/>} />
       </Routes>
