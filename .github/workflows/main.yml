@@ -33,7 +33,7 @@ jobs:
         cd frontend
         npm install
         npm run build
-        cp build ../backend
+        cp -r build ../backend
     - name: install backend
       run: |
        cp backend
