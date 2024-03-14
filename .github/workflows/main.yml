@@ -27,6 +27,8 @@ jobs:
 
 # In this step I am renaming my static main.js file by removing the auto-added hash from its name 
     - name: install frontend
+      env:
+        CI: ""
       run: |
         cd frontend
         npm install
