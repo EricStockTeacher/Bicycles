@@ -43,6 +43,7 @@ jobs:
       run: |
         cd backend
         zip -r deploy.zip *
+        cp deploy.zip ../
 
     - name: Get timestamp
       uses: gerred/actions/current-time@master
