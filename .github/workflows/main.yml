@@ -36,9 +36,8 @@ jobs:
         cp -r build ../backend
     - name: install backend
       run: |
-       cp backend
+       cd backend
        npm install
-       npm run build
 # Creating my deployment package and compressing it into a zip file   
     - name: Generate deployment package
       run: |
