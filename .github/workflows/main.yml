@@ -59,7 +59,7 @@ jobs:
 # Now, its time to deploy our package to Beanstalk that we've configured earlier, to deploy our app we need Secret keys that we can get from the AWS user, every user has separate keys on AWS. 
 
     - name: Beanstalk Deploy for app
-      uses: einaregilsson/beanstalk-deploy@v10
+      uses: einaregilsson/beanstalk-deploy@v21
       with:
         aws_access_key: ${{secrets.AWS_ACCESS_REACT_KEY_ID}}
         aws_secret_key: ${{secrets.AWS_SECRET_ACCESS_REACT_KEY}}
