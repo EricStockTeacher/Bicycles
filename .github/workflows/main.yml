@@ -1,6 +1,6 @@
 
 # specify the name of your project
-name: React Charts Build
+name: Deploy to Beanstalk
 
 # Configure what events and branches you want to trigger your pipeline on, in this case I want it to be trgiggered when I push the code in react-profile branch
 on:
@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: [ main ]
     
-# Create jobs to create your image which you can deploy on AWS, I am running my Node12 application on ubuntu OS. 
+# Create jobs to create your image which you can deploy on AWS, I am running my Node20 application on ubuntu OS. 
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +25,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-# In this step I am renaming my static main.js file by removing the auto-added hash from its name 
+# use npm to install the front end, the build the compiled react front end and copy to the backend 
     - name: install frontend
       env:
         CI: ""
@@ -34,21 +34,22 @@ jobs:
         npm install
         npm run build
         cp -r build ../backend
+# use npm to install the back end
     - name: install backend
       run: |
        cd backend
        npm install
-# Creating my deployment package and compressing it into a zip file   
+# Create the deployment package by zipping the contents of the backend folder and naming it deploy.zip.  I am also copying this deploy.zip to the root directory  
     - name: Generate deployment package
       run: |
         cd backend
         zip -r deploy.zip *
         cp deploy.zip ../
-
+# Getting the current timestamp to use to name the deployment version
     - name: Get timestamp
       uses: gerred/actions/current-time@master
       id: current-time
-
+# replace any ':' and '.' characters with a '-' so the deployment will have a valid name
     - name: Run string replace
       uses: frabert/replace-string-action@master
       id: format-time
