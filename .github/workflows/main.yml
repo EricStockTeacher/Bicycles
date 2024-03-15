@@ -1,5 +1,5 @@
 
-# specify the name of your project
+# specify the name of your project, Deploy to Beanstalk
 name: Deploy to Beanstalk
 
 # Configure what events and branches you want to trigger your pipeline on, in this case I want it to be triggered when I push the code in main branch
