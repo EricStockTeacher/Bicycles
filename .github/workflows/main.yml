@@ -4,10 +4,7 @@ name: Deploy to Beanstalk
 
 # Configure what events and branches you want to trigger your pipeline on, in this case I want it to be triggered when I push the code in main branch
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch
     
 # Create jobs to create your image which you can deploy on AWS, I am running my Node20 application on ubuntu OS. 
 jobs:
