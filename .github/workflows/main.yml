@@ -2,7 +2,7 @@
 # specify the name of your project
 name: Deploy to Beanstalk
 
-# Configure what events and branches you want to trigger your pipeline on, in this case I want it to be trgiggered when I push the code in react-profile branch
+# Configure what events and branches you want to trigger your pipeline on, in this case I want it to be triggered when I push the code in main branch
 on:
   push:
     branches: [ main ]
@@ -68,7 +68,7 @@ jobs:
         aws_secret_key: ${{secrets.AWS_SECRET_ACCESS_REACT_KEY}}
         application_name: "Bicycles"
         environment_name: "Bicycles-env"
-        region: "us-east-1"
+        region: "us-west-2"
         version_label: "react-demo-new-${{ steps.format-time.outputs.replaced }}"
         deployment_package: deploy.zip
 
