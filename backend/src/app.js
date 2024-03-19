@@ -4,8 +4,13 @@ import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
 import client from './mongo.js';
 import jwt from 'jsonwebtoken';
+import {getGoogleOauthURL} from './oauthClient.js';
+import {oauthClient} from './oauthClient.js'
+
 
 const app = express()
+
+const googleOAuthURL = getGoogleOauthURL();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +21,57 @@ app.use(bodyParser.json());
 
 const port = process.env.PORT || 8080;
 const JWTSecret = "test123";
+
+
+const getAccessAndBearerTokenUrl = (access_token) => {
+    return `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`;
+}
+
+app.get( '/api/google/auth/callback', async (req, res) => {
+    console.log("Hit callback route");
+
+    const { code } = req.query;
+
+    console.log(code);
+
+    const { tokens } = await oauthClient.getToken(code);
+
+    console.log(tokens);
+
+    const url = getAccessAndBearerTokenUrl(tokens.access_token);
+
+    const myHeaders = new Headers();
+    const bearerToken = "Bearer "+tokens.id_token;
+    myHeaders.append("Authorization", bearerToken);
+
+    const requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow"
+    };
+
+    fetch(url, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+            console.log(result)
+            jwt.sign( {"name":result.name, "email":result.email, "accountId":result.id}, JWTSecret, {expiresIn: '2d'}, (err, token) => {
+                if(err) {
+                    res.status(500).json(err);
+                }
+                res.redirect(`http://localhost:3000/login?token=${token}`);
+            });
+        })
+        .catch((error) => 
+         {
+            console.error(error);
+            res.status(500).json(err);
+         });
+})
+
+
+app.get( '/api/google/url', (req, res) => {
+    res.status(200).json({url: googleOAuthURL});
+})
 
 app.get('/api/login', (req, res) => {
     jwt.sign( {"name":"Eric", "email":"ericstockteacher@gmail.com", "accountId":12}, JWTSecret, {expiresIn: '2d'}, (err, token) => {
