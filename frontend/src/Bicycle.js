@@ -116,6 +116,7 @@ export function UpdateBicycle(props) {
         
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", "Bearer "+localStorage.getItem('token'));
 
         var raw = JSON.stringify({
             "name": nameText.current.value,
