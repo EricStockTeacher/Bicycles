@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // main react component
 
+//Here is another comment by Eric
+
 function App() {
 
   const [bikeInfo, setBikeInfo] = useState();
