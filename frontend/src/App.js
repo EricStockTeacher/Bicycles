@@ -5,11 +5,11 @@ import './App.css';
 import Bicycle, {UpdateBicycle} from './Bicycle';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// main react component
+// app react component
 
-//Here is another comment by Eric
+//Here is another comment about my work
 
-// please dont fail me
+// please fix my code
 
 function App() {
 
