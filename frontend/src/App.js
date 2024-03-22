@@ -5,6 +5,8 @@ import './App.css';
 import Bicycle, {UpdateBicycle} from './Bicycle';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+// main react component
+
 function App() {
 
   const [bikeInfo, setBikeInfo] = useState();
