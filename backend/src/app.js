@@ -6,6 +6,7 @@ import client from './mongo.js';
 import jwt from 'jsonwebtoken';
 import {getGoogleOauthURL} from './oauthClient.js';
 import {oauthClient} from './oauthClient.js'
+import bikeModel from './bikeModel.js'
 
 
 const app = express()
@@ -139,8 +140,12 @@ app.get('/api/bicycle', async (req, res) => {
             }
 
             console.log(decoded);
+
+
+            const bikes = await bikeModel.find({email: decoded.email}).exec();
+            console.log(bikes);
             //https://www.mongodb.com/docs/drivers/node/current/usage-examples/findOne/
-            const database = client.db("bicycle-store");
+            /*const database = client.db("bicycle-store");
             const bikes = database.collection("bike");
 
             
@@ -149,9 +154,9 @@ app.get('/api/bicycle', async (req, res) => {
             for await(const doc of findResult) {
                 console.log(doc);
                 bikeData.push(doc);
-            }
+            }*/
             
-            return res.json(bikeData);
+            return res.json(bikes);
 
         })
     }
@@ -184,15 +189,21 @@ app.post('/api/bicycle', async (req, res) => {
                     return res.status(400).json({message: 'Unable to verify token'});
                 }
 
+                const bike = new bikeModel( 
+                    { name: name, color: color, image: image, email: decoded.email}
+                )
+
+                await bike.save();
+
                 //https://www.mongodb.com/docs/drivers/node/current/usage-examples/updateOne/
-                const database = client.db("bicycle-store");
+                /*const database = client.db("bicycle-store");
                 const bikes = database.collection("bike");
                 
                 const result = await bikes.insertOne({ name: name, color: color, image: image, email: decoded.email} );
                 
                 console.log(result);
                 
-                return res.json({ name: name, color: color, image: image});
+                return res.json({ name: name, color: color, image: image});*/
             })
         }
         catch( error ) {

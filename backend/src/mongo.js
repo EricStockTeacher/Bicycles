@@ -1,8 +1,11 @@
 //https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connect/#std-label-node-connect-to-mongodb
 
 import { MongoClient, ServerApiVersion } from "mongodb";
+import mongoose from 'mongoose';
 
 const uri = process.env.MONGO_URI;
+
+mongoose.connect(uri+'/bicycle-store');
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri,  {
