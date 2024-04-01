@@ -2,11 +2,11 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
-import client from './mongo.js';
 import jwt from 'jsonwebtoken';
 import {getGoogleOauthURL} from './oauthClient.js';
 import {oauthClient} from './oauthClient.js'
 import bikeModel from './bikeModel.js'
+import userModel from './userModel.js'
 
 
 const app = express()
@@ -38,21 +38,29 @@ const updateOrCreateUserFromOauth = async (oauthUserInfo) => {
     console.log(name);
     console.log(email);
 
-    const database = client.db("bicycle-store");
+    
+    const existingUser = await userModel.findOne({email});
+    
+    
+    /*const database = client.db("bicycle-store");
     const users = database.collection("users");
 
-    const existingUser = await users.findOne({email})
+    const existingUser = await users.findOne({email})*/
 
     if( existingUser ) {
-        const result = await users.findOneAndUpdate({email}, 
-            { $set: {name, email}},
+        const result = await userModel.findOneAndUpdate({email}, 
+            {name, email},
             { returnDocument: "after"} 
         );
         return result;
     }
     else {
-        const result = await users.insertOne( {email, name});
-        return { email, name, _id: result.insertedId };
+        const result = await userModel.create({email, name});
+        console.log(result._id);
+        return  { email, name, _id: result._id };
+
+        /*const result = await users.insertOne( {email, name});
+        return { email, name, _id: result.insertedId };*/
     }
 
 
@@ -215,13 +223,14 @@ app.post('/api/bicycle', async (req, res) => {
 app.delete('/api/bicycle', async (req, res) => {
     const name = req.body.name;
 
-    const database = client.db("bicycle-store");
-    const bikes = database.collection("bike");
+    const result = await bikeModel.deleteOne({name: name});
+    
+    /*const database = client.db("bicycle-store");
+    const bikes = database.collection("bikes");
 
-    const deleteResult = await bikes.deleteOne({ name: name});
+    const deleteResult = await bikes.deleteOne({ name: name});*/
 
-    return res.json({ deletedBikes: deleteResult.deletedCount})
-
+    return res.json({ deletedBikes: result.deletedCount})
 
 })
 
