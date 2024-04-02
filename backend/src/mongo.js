@@ -1,30 +1,27 @@
 //https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connect/#std-label-node-connect-to-mongodb
 
-import { MongoClient, ServerApiVersion } from "mongodb";
+import mongoose from 'mongoose';
 
 const uri = process.env.MONGO_URI;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri,  {
-        serverApi: {
-            version: ServerApiVersion.v1,
-            strict: true,
-            deprecationErrors: true,
-        }
-    }
-);
-async function run() {
-  try {
-    // Connect the client to the server (optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    //await client.close();
-  }
-}
-run().catch(console.dir);
+export const connect = () => {
 
-export default client;
+  try {
+    mongoose.connect(uri+'/bicycle-store');
+  }
+  catch( err ) {
+    console.log(err);
+  }
+
+  mongoose.connection.on('error', err => {
+    logError(err);
+  });
+
+  mongoose.connection.on('disconnected', msg => {
+    logError(msg);
+  });
+
+}
+
+
+

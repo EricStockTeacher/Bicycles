@@ -2,12 +2,15 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
-import client from './mongo.js';
 import jwt from 'jsonwebtoken';
 import {getGoogleOauthURL} from './oauthClient.js';
 import {oauthClient} from './oauthClient.js'
+import bikeModel from './bikeModel.js'
+import userModel from './userModel.js'
+import { connect } from './mongo.js'
 
 
+connect();
 const app = express()
 
 const googleOAuthURL = getGoogleOauthURL();
@@ -37,21 +40,29 @@ const updateOrCreateUserFromOauth = async (oauthUserInfo) => {
     console.log(name);
     console.log(email);
 
-    const database = client.db("bicycle-store");
+    /*const database = client.db("bicycle-store");
     const users = database.collection("users");
 
-    const existingUser = await users.findOne({email})
+    const existingUser = await users.findOne({email})*/
+
+    const existingUser = await userModel.findOne( { email });
 
     if( existingUser ) {
-        const result = await users.findOneAndUpdate({email}, 
+
+        const result = await userModel.findOneAndUpdate( { email}, { name }, {returnDocument: "after"})
+
+        /*const result = await users.findOneAndUpdate({email}, 
             { $set: {name, email}},
             { returnDocument: "after"} 
-        );
+        );*/
         return result;
     }
     else {
-        const result = await users.insertOne( {email, name});
-        return { email, name, _id: result.insertedId };
+        const result = await userModel.create( { email, name});
+        return { email, name, _id: result._id };
+
+        /*const result = await users.insertOne( {email, name});
+        return { email, name, _id: result.insertedId };*/
     }
 
 
@@ -139,8 +150,12 @@ app.get('/api/bicycle', async (req, res) => {
             }
 
             console.log(decoded);
+
+
+            const bikes = await bikeModel.find({email: decoded.email}).exec();
+            console.log(bikes);
             //https://www.mongodb.com/docs/drivers/node/current/usage-examples/findOne/
-            const database = client.db("bicycle-store");
+            /*const database = client.db("bicycle-store");
             const bikes = database.collection("bike");
 
             
@@ -149,9 +164,9 @@ app.get('/api/bicycle', async (req, res) => {
             for await(const doc of findResult) {
                 console.log(doc);
                 bikeData.push(doc);
-            }
+            }*/
             
-            return res.json(bikeData);
+            return res.json(bikes);
 
         })
     }
@@ -159,6 +174,22 @@ app.get('/api/bicycle', async (req, res) => {
         return res.status(500).json({message: 'error validting user'})
     }
 })
+
+app.post( '/api/addBike', async (req, res) => {
+    console.log(req.body);
+
+    const bike = new bikeModel(req.body)
+
+    try {
+        const value = await bike.save();
+        console.log(value);
+    }
+    catch( error ) {
+        console.log(error);
+        return res.status(400).json({message: 'error inserting bike'})
+    }
+    return res.status(200).json({message: "bike inserted"});
+});
 
 app.post('/api/bicycle', async (req, res) => {
     const name = req.body.name;
@@ -173,7 +204,7 @@ app.post('/api/bicycle', async (req, res) => {
         console.log(authorization);
 
         if( !authorization ) {
-            res.status(400).json({message: "Authorization needed"})
+            return res.status(400).json({message: "Authorization needed"})
         }
         try {
             const token = authorization.split(' ')[1];
@@ -184,15 +215,25 @@ app.post('/api/bicycle', async (req, res) => {
                     return res.status(400).json({message: 'Unable to verify token'});
                 }
 
+                const bike = new bikeModel( 
+                    { name: name, color: color, image: image, email: decoded.email}
+                )
+
+                const value = await bike.save();
+
+                console.log(value);
+
+                return res.json( { name: value.name, color: value.color, image: value.image})
+
                 //https://www.mongodb.com/docs/drivers/node/current/usage-examples/updateOne/
-                const database = client.db("bicycle-store");
+                /*const database = client.db("bicycle-store");
                 const bikes = database.collection("bike");
                 
                 const result = await bikes.insertOne({ name: name, color: color, image: image, email: decoded.email} );
                 
                 console.log(result);
                 
-                return res.json({ name: name, color: color, image: image});
+                return res.json({ name: name, color: color, image: image});*/
             })
         }
         catch( error ) {
@@ -204,14 +245,14 @@ app.post('/api/bicycle', async (req, res) => {
 app.delete('/api/bicycle', async (req, res) => {
     const name = req.body.name;
 
-    const database = client.db("bicycle-store");
-    const bikes = database.collection("bike");
+    /*const database = client.db("bicycle-store");
+    const bikes = database.collection("bikes");
 
-    const deleteResult = await bikes.deleteOne({ name: name});
+    const deleteResult = await bikes.deleteOne({ name: name});*/
 
-    return res.json({ deletedBikes: deleteResult.deletedCount})
+    const result = await bikeModel.deleteOne( { name: name});
 
-
+    return res.json({ deletedBikes: result.deletedCount})
 })
 
 app.listen(port, () => {
