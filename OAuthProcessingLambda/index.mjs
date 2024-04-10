@@ -1,9 +1,9 @@
 import { google} from 'googleapis';
 import { MongoClient, ServerApiVersion } from "mongodb";
+import jwt from 'jsonwebtoken';
 
 export const handler = async (event) => {
-
-    
+    const JWTSecret = "test123";
     const oauthClient = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
@@ -13,16 +13,17 @@ export const handler = async (event) => {
     //return event;
     //console.log(event);
 
-    const { code } = event;
+    const { code } = event.queryStringParameters;
 
-    console.log(code);
+    //console.log(code);
+    //console.log(event);
 
     const { tokens } = await oauthClient.getToken(code);
 
-    console.log(tokens);
+    //console.log(tokens);
 
     const url = getAccessAndBearerTokenUrl(tokens.access_token);
-
+    console.log(url);
     const myHeaders = new Headers();
     const bearerToken = "Bearer "+tokens.id_token;
     myHeaders.append("Authorization", bearerToken);
@@ -42,7 +43,7 @@ export const handler = async (event) => {
                 if(err) {
                     res.status(500).json(err);
                 }
-                response = {
+                const response = {
                     "statusCode": 302,
                     "headers": {
                         "Location": `${process.env.APP_URL}/login?token=${token}`,
@@ -55,13 +56,17 @@ export const handler = async (event) => {
         .catch((error) => 
          {
             console.error(error);
-            res.status(500).json(err);
+            console.log(error);
+            const response = {
+                "statusCode": 500
+            }
+            return response;
          });
 }
 
 const updateOrCreateUserFromOauth = async (oauthUserInfo) => {
-    return { email: "ericstockteacher@gmail.com", name:"Eric Stock"};
-
+    //return { email: "ericstockteacher@gmail.com", name:"Eric Stock"};
+    console.log(oauthUserInfo);
     const uri = process.env.MONGO_URI;
     //"mongodb+srv://ericstock:urJkxr3c7ccBxyUA@cluster0.fan0a.mongodb.net/?retryWrites=true&w=majority";
 
