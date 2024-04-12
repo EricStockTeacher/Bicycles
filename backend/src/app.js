@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 const port = process.env.PORT || 8080;
-const JWTSecret = "test123";
+const JWTSecret = "b715846d-5ffc-4f60-adda-ed9ff7cefafa";
 
 
 const getAccessAndBearerTokenUrl = (access_token) => {
@@ -202,16 +202,32 @@ app.post('/api/bicycle', async (req, res) => {
 })
 
 app.delete('/api/bicycle', async (req, res) => {
+
     const name = req.body.name;
+    if( !name ) {
+        return res.status(400).json({message: "Missing bike to delete"})
+    }
+    const { authorization } = req.headers;
+        
+    if( !authorization ) {
+        return res.status(400).json({message: "Authorization needed"})
+    }
+    try {
+        const token = authorization.split(' ')[1];
+        
+        const decoded = jwt.verify( token, JWTSecret);
+         
+        //https://www.mongodb.com/docs/drivers/node/current/usage-examples/updateOne/
+        const database = client.db("bicycle-store");
+        const bikes = database.collection("bike");
+        
+        const deleteResult = await bikes.deleteOne({ name: name, email: decoded.email});
 
-    const database = client.db("bicycle-store");
-    const bikes = database.collection("bike");
-
-    const deleteResult = await bikes.deleteOne({ name: name});
-
-    return res.json({ deletedBikes: deleteResult.deletedCount})
-
-
+        return res.json({ deletedBikes: deleteResult.deletedCount}) 
+    }
+    catch( error ) {
+        return res.status(500).json({message: error.message});
+    }
 })
 
 app.listen(port, () => {
