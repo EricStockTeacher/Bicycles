@@ -37,7 +37,8 @@ export const handler = async (event) => {
     } catch(err) {
         console.error(error);
         return {
-            "statusCode": 500
+            "statusCode": 500,
+            "body": error.message
         }
     }
 }
