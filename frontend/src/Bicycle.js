@@ -96,8 +96,8 @@ function Bicycle(props) {
                 props.info.map( bike => {
                     return (
                     <>
-                    <h2>{bike.name}</h2>
-                    <h3>{bike.color}</h3>
+                    <h2>Name: {bike.name}</h2>
+                    <h3>Color: {bike.color}</h3>
                     <img src = {"images/"+bike.image}></img>
                     <button onClick={handleDelete} id={bike.name} >Delete</button>
                     </>)
